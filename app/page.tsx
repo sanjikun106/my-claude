@@ -514,8 +514,8 @@ export default function Home() {
           {!active || active.messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-4">
               <div className="max-w-2xl w-full text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-accent text-white text-xl font-bold mb-5">
-                  C
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-accent text-white text-xl font-bold mb-5 font-serif italic">
+                  L
                 </div>
                 <h1 className="font-serif text-3xl md:text-[34px] mb-8 text-ink dark:text-ink-dark">
                   How can I help you today?
