@@ -26,6 +26,7 @@ import type {
   Conversation,
   ImageAttachment,
   MemoryMode,
+  UsageTotals,
 } from "@/lib/types";
 import {
   describeAnthropicError,
@@ -35,6 +36,7 @@ import {
 import { buildContext, extractGraph } from "@/lib/graph-memory";
 import { GraphPanel } from "@/components/GraphPanel";
 import { MemoryModeToggle } from "@/components/MemoryModeToggle";
+import { Logo } from "@/components/Logo";
 import { Network } from "lucide-react";
 
 const SUGGESTIONS = [
@@ -57,6 +59,11 @@ export default function Home() {
   const [forceSetup, setForceSetup] = useState(false);
   const [graphOpen, setGraphOpen] = useState(false);
   const [graphRefreshing, setGraphRefreshing] = useState<string | null>(null);
+  const [sessionUsage, setSessionUsage] = useState<UsageTotals>({
+    input: 0,
+    output: 0,
+    requests: 0,
+  });
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const conversationsRef = useRef<Conversation[]>([]);
@@ -251,7 +258,7 @@ export default function Home() {
       };
 
       try {
-        await streamChat({
+        const usage = await streamChat({
           apiKey: key,
           model: modelId,
           messages: wireMessages,
@@ -268,10 +275,20 @@ export default function Home() {
                   messages: c.messages.map((m) =>
                     m.id === assistantId ? { ...m, pending: false } : m,
                   ),
+                  usage: {
+                    input: (c.usage?.input ?? 0) + usage.input,
+                    output: (c.usage?.output ?? 0) + usage.output,
+                    requests: (c.usage?.requests ?? 0) + 1,
+                  },
                 }
               : c,
           ),
         );
+        setSessionUsage((u) => ({
+          input: u.input + usage.input,
+          output: u.output + usage.output,
+          requests: u.requests + 1,
+        }));
 
         // Background: refresh the knowledge graph for this conversation so
         // that the *next* turn uses a graph that includes this exchange.
@@ -456,6 +473,7 @@ export default function Home() {
           onDelete={deleteConversation}
           collapsed={collapsed}
           onToggleCollapsed={() => setCollapsed((c) => !c)}
+          sessionUsage={sessionUsage}
         />
       </div>
 
@@ -514,8 +532,8 @@ export default function Home() {
           {!active || active.messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-4">
               <div className="max-w-2xl w-full text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-accent text-white text-xl font-bold mb-5 font-serif italic">
-                  L
+                <div className="inline-flex mb-5">
+                  <Logo size={56} rounded="rounded-2xl" />
                 </div>
                 <h1 className="font-serif text-3xl md:text-[34px] mb-8 text-ink dark:text-ink-dark">
                   How can I help you today?

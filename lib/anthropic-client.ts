@@ -100,7 +100,16 @@ export interface StreamChatArgs {
   onDelta: (text: string) => void;
 }
 
-export async function streamChat(args: StreamChatArgs): Promise<void> {
+export interface TokenUsage {
+  input: number;
+  output: number;
+  /** input tokens that were served from the prompt cache (cheap) */
+  cacheRead?: number;
+  /** input tokens that were written to the prompt cache */
+  cacheWrite?: number;
+}
+
+export async function streamChat(args: StreamChatArgs): Promise<TokenUsage> {
   const client = getClient(args.apiKey);
   const anthropicMessages = args.messages.map((m) => ({
     role: m.role,
@@ -126,7 +135,19 @@ export async function streamChat(args: StreamChatArgs): Promise<void> {
       args.onDelta(event.delta.text);
     }
   }
-  await stream.finalMessage();
+  const final = await stream.finalMessage();
+  const u = final.usage as {
+    input_tokens: number;
+    output_tokens: number;
+    cache_creation_input_tokens?: number;
+    cache_read_input_tokens?: number;
+  };
+  return {
+    input: u.input_tokens ?? 0,
+    output: u.output_tokens ?? 0,
+    cacheRead: u.cache_read_input_tokens,
+    cacheWrite: u.cache_creation_input_tokens,
+  };
 }
 
 /** Generate a short conversation title using Haiku. Best-effort, swallows errors. */

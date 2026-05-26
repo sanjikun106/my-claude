@@ -13,7 +13,8 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Conversation } from "@/lib/types";
+import type { Conversation, UsageTotals } from "@/lib/types";
+import { Logo } from "./Logo";
 
 interface Props {
   conversations: Conversation[];
@@ -24,6 +25,7 @@ interface Props {
   onDelete: (id: string) => void;
   collapsed: boolean;
   onToggleCollapsed: () => void;
+  sessionUsage: UsageTotals;
 }
 
 function groupByDate(convs: Conversation[]) {
@@ -46,6 +48,12 @@ function groupByDate(convs: Conversation[]) {
   return buckets;
 }
 
+function fmtTok(n: number): string {
+  if (n < 1000) return String(n);
+  if (n < 1_000_000) return (n / 1000).toFixed(n < 10_000 ? 1 : 0) + "k";
+  return (n / 1_000_000).toFixed(1) + "M";
+}
+
 export function Sidebar({
   conversations,
   activeId,
@@ -55,7 +63,10 @@ export function Sidebar({
   onDelete,
   collapsed,
   onToggleCollapsed,
+  sessionUsage,
 }: Props) {
+  const activeConv = conversations.find((c) => c.id === activeId);
+  const activeUsage = activeConv?.usage;
   const [query, setQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [renameId, setRenameId] = useState<string | null>(null);
@@ -108,9 +119,7 @@ export function Sidebar({
     <aside className="hidden md:flex h-screen w-[260px] shrink-0 flex-col bg-panel dark:bg-panel-dark border-r border-border dark:border-border-dark">
       <div className="flex items-center justify-between px-3 pt-3 pb-2">
         <div className="flex items-center gap-2 px-1">
-          <div className="w-6 h-6 rounded-md bg-accent text-white flex items-center justify-center text-[12px] font-bold font-serif italic">
-            L
-          </div>
+          <Logo size={22} />
           <span className="font-semibold text-[15px] font-serif italic">Laude</span>
         </div>
         <button
@@ -278,8 +287,26 @@ export function Sidebar({
         )}
       </nav>
 
-      <div className="mt-auto px-3 py-1.5 text-[10.5px] text-center text-ink-muted/60 dark:text-ink-mutedDark/60 select-none">
-        Local chats · Your API key
+      <div className="mt-auto px-3 py-2.5 border-t border-border dark:border-border-dark text-[11px] text-ink-muted dark:text-ink-mutedDark">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="uppercase tracking-wider text-[10px] opacity-80">
+            This chat
+          </span>
+          <span className="font-mono text-ink/80 dark:text-ink-dark/80">
+            ↑ {fmtTok(activeUsage?.input ?? 0)} · ↓ {fmtTok(activeUsage?.output ?? 0)}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="uppercase tracking-wider text-[10px] opacity-80">
+            Session
+          </span>
+          <span className="font-mono text-ink/80 dark:text-ink-dark/80">
+            ↑ {fmtTok(sessionUsage.input)} · ↓ {fmtTok(sessionUsage.output)}
+          </span>
+        </div>
+        <div className="mt-1.5 text-[10px] text-center opacity-60 select-none">
+          Local chats · Your API key
+        </div>
       </div>
     </aside>
   );

@@ -1,8 +1,9 @@
 "use client";
 
-import { ArrowRight, Eye, EyeOff, KeyRound, Loader2 } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { verifyApiKey } from "@/lib/anthropic-client";
+import { Logo } from "./Logo";
 
 interface Props {
   initialError?: string;
@@ -31,8 +32,8 @@ export function ApiKeySetup({ initialError, onVerified }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg dark:bg-bg-dark px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-7">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-accent text-white mb-4">
-            <KeyRound size={22} />
+          <div className="inline-flex mb-4">
+            <Logo size={56} rounded="rounded-2xl" />
           </div>
           <h1 className="font-serif text-[28px] mb-2 text-ink dark:text-ink-dark">
             Welcome to <span className="italic">Laude</span>

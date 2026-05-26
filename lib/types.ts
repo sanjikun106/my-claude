@@ -54,6 +54,14 @@ export interface ConversationGraph {
 
 export type MemoryMode = "graph" | "full";
 
+export interface UsageTotals {
+  /** total tokens sent up across all turns in this scope */
+  input: number;
+  output: number;
+  /** number of API calls that contributed to these totals */
+  requests: number;
+}
+
 export interface Conversation {
   id: string;
   title: string;
@@ -67,4 +75,6 @@ export interface Conversation {
   memoryMode?: MemoryMode;
   /** distilled knowledge graph of the conversation so far */
   graph?: ConversationGraph;
+  /** cumulative token usage attributed to this chat */
+  usage?: UsageTotals;
 }
