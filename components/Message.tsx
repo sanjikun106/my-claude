@@ -24,7 +24,7 @@ export function Message({ message, onRegenerate, isLastAssistant }: Props) {
   if (message.role === "user") {
     return (
       <div className="w-full flex justify-end animate-slide-up">
-        <div className="max-w-[85%]">
+        <div className="max-w-[min(85%,100%)] sm:max-w-[85%]">
           {message.attachments && message.attachments.length > 0 && (
             <div className="flex flex-wrap gap-2 justify-end mb-2">
               {message.attachments.map((a) => (

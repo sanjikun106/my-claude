@@ -79,7 +79,7 @@ export function Composer({
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 pb-4">
+    <div className="w-full max-w-3xl mx-auto px-2 sm:px-4 pb-2 sm:pb-4">
       <div className="rounded-3xl border border-border dark:border-border-dark bg-bg dark:bg-panel-dark shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] transition-shadow focus-within:shadow-[0_6px_24px_-4px_rgba(0,0,0,0.12)]">
         {attachments.length > 0 && (
           <div className="flex flex-wrap gap-2 px-4 pt-3">
@@ -115,11 +115,11 @@ export function Composer({
           onKeyDown={onKeyDown}
           rows={1}
           placeholder={placeholder ?? "Reply to Claude..."}
-          className="w-full resize-none bg-transparent outline-none px-5 pt-4 pb-2 text-[15.5px] leading-relaxed placeholder:text-ink-muted dark:placeholder:text-ink-mutedDark"
+          className="w-full resize-none bg-transparent outline-none px-4 sm:px-5 pt-4 pb-2 text-[15px] sm:text-[15.5px] leading-relaxed placeholder:text-ink-muted dark:placeholder:text-ink-mutedDark"
         />
 
-        <div className="flex items-center justify-between px-3 pb-2.5 pt-1">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center justify-between gap-2 px-2 sm:px-3 pb-2.5 pt-1 min-w-0">
+          <div className="flex items-center gap-0.5 sm:gap-1 min-w-0 flex-1">
             <button
               onClick={() => fileRef.current?.click()}
               className="p-2 rounded-lg text-ink-muted dark:text-ink-mutedDark hover:bg-panel dark:hover:bg-bg-dark transition-colors"

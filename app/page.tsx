@@ -452,17 +452,25 @@ export default function Home() {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-bg dark:bg-bg-dark text-ink dark:text-ink-dark">
+    <div className="flex h-[100dvh] w-full max-w-[100vw] overflow-hidden bg-bg dark:bg-bg-dark text-ink dark:text-ink-dark">
       {mobileSidebarOpen && (
         <div
           className="md:hidden fixed inset-0 z-40 bg-black/40"
           onClick={() => setMobileSidebarOpen(false)}
+          aria-hidden
+        />
+      )}
+      {graphOpen && active && (
+        <div
+          className="md:hidden fixed inset-0 z-[55] bg-black/40"
+          onClick={() => setGraphOpen(false)}
+          aria-hidden
         />
       )}
       <div
         className={`${
           mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 fixed md:static inset-y-0 left-0 z-50 h-full transition-transform`}
+        } md:translate-x-0 fixed md:static inset-y-0 left-0 z-50 h-full w-[min(280px,88vw)] md:w-auto transition-transform duration-200 ease-out`}
       >
         <Sidebar
           conversations={conversations}
@@ -477,9 +485,9 @@ export default function Home() {
         />
       </div>
 
-      <main className="flex-1 flex flex-col min-w-0">
-        <header className="h-14 px-3 md:px-4 flex items-center justify-between border-b border-border/70 dark:border-border-dark/70">
-          <div className="flex items-center gap-1">
+      <main className="flex-1 flex flex-col min-w-0 min-h-0">
+        <header className="h-14 shrink-0 px-2 sm:px-3 md:px-4 flex items-center justify-between gap-2 border-b border-border/70 dark:border-border-dark/70">
+          <div className="flex items-center gap-0.5 sm:gap-1 min-w-0 flex-1">
             <button
               onClick={() => setMobileSidebarOpen(true)}
               className="md:hidden p-2 rounded-lg hover:bg-panel dark:hover:bg-panel-dark"
@@ -493,7 +501,7 @@ export default function Home() {
             >
               <Plus size={18} />
             </button>
-            <div className="ml-1">
+            <div className="ml-0.5 sm:ml-1 min-w-0">
               <ModelSelector value={model} onChange={setModel} />
             </div>
             {active && (
@@ -503,10 +511,16 @@ export default function Home() {
               />
             )}
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
             {active && (
               <button
-                onClick={() => setGraphOpen((o) => !o)}
+                onClick={() => {
+                  setGraphOpen((o) => {
+                    const next = !o;
+                    if (next) setMobileSidebarOpen(false);
+                    return next;
+                  });
+                }}
                 className={`p-2 rounded-lg transition-colors ${
                   graphOpen
                     ? "bg-accent/15 text-accent"
@@ -552,7 +566,7 @@ export default function Home() {
               </div>
             </div>
           ) : (
-            <div className="max-w-3xl mx-auto px-4 pt-8 pb-32 space-y-7">
+            <div className="max-w-3xl mx-auto px-3 sm:px-4 pt-6 sm:pt-8 pb-28 sm:pb-32 space-y-6 sm:space-y-7">
               {active.messages.map((m, i) => {
                 const isLastAssistant =
                   m.role === "assistant" &&
@@ -571,7 +585,7 @@ export default function Home() {
           )}
         </div>
 
-        <div className="pt-2 bg-gradient-to-t from-bg dark:from-bg-dark to-transparent">
+        <div className="shrink-0 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] bg-gradient-to-t from-bg dark:from-bg-dark to-transparent">
           <Composer
             model={model}
             onModelChange={setModel}

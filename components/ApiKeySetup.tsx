@@ -29,14 +29,14 @@ export function ApiKeySetup({ initialError, onVerified }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg dark:bg-bg-dark px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg dark:bg-bg-dark px-4 py-6 overflow-y-auto">
       <div className="max-w-md w-full">
         <div className="text-center mb-7">
           <div className="inline-flex mb-4">
             <Logo size={56} rounded="rounded-2xl" />
           </div>
           <h1 className="font-serif text-[28px] mb-2 text-ink dark:text-ink-dark">
-            Welcome to <span className="italic">Laude</span>
+            Welcome to Laude
           </h1>
           <p className="text-[14px] text-ink-muted dark:text-ink-mutedDark leading-relaxed">
             Paste your Anthropic API key to start chatting. It&apos;s stored only in

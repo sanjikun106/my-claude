@@ -116,11 +116,11 @@ export function Sidebar({
   }
 
   return (
-    <aside className="hidden md:flex h-screen w-[260px] shrink-0 flex-col bg-panel dark:bg-panel-dark border-r border-border dark:border-border-dark">
+    <aside className="flex h-full w-[260px] max-w-[88vw] shrink-0 flex-col bg-panel dark:bg-panel-dark border-r border-border dark:border-border-dark">
       <div className="flex items-center justify-between px-3 pt-3 pb-2">
         <div className="flex items-center gap-2 px-1">
           <Logo size={22} />
-          <span className="font-semibold text-[15px] font-serif italic">Laude</span>
+          <span className="font-semibold text-[15px]">Laude</span>
         </div>
         <button
           onClick={onToggleCollapsed}

@@ -222,7 +222,7 @@ export function GraphPanel({
   const stale = graph ? used < total : false;
 
   return (
-    <aside className="hidden md:flex w-[360px] h-screen shrink-0 flex-col border-l border-border dark:border-border-dark bg-panel dark:bg-panel-dark">
+    <aside className="flex fixed inset-y-0 right-0 z-[60] w-full max-w-[100vw] h-[100dvh] shrink-0 flex-col border-l border-border dark:border-border-dark bg-panel dark:bg-panel-dark md:static md:z-auto md:w-[360px] md:max-w-none md:h-screen">
       <div className="flex items-center justify-between px-3.5 py-3 border-b border-border dark:border-border-dark">
         <div className="flex items-center gap-2">
           <Network size={15} className="text-accent" />

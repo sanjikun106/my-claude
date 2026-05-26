@@ -12,7 +12,6 @@ interface Props {
   placement?: "auto" | "up" | "down";
 }
 
-const MENU_WIDTH = 320;
 const ESTIMATED_MENU_HEIGHT = 380;
 
 export function ModelSelector({
@@ -66,16 +65,18 @@ export function ModelSelector({
       <button
         ref={buttonRef}
         onClick={() => setOpen((o) => !o)}
-        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[13.5px] font-medium text-ink/80 dark:text-ink-dark/80 hover:bg-panel dark:hover:bg-panel-dark transition-colors"
+        className="inline-flex items-center gap-1 sm:gap-1.5 max-w-full min-w-0 px-2 sm:px-2.5 py-1.5 rounded-lg text-[13px] sm:text-[13.5px] font-medium text-ink/80 dark:text-ink-dark/80 hover:bg-panel dark:hover:bg-panel-dark transition-colors"
       >
-        <Sparkles size={14} className="text-accent" />
-        <span>{current.name}</span>
-        <ChevronDown size={14} className="opacity-60" />
+        <Sparkles size={14} className="text-accent shrink-0" />
+        <span className="truncate max-w-[6.5rem] sm:max-w-[12rem] md:max-w-none">
+          {current.name}
+        </span>
+        <ChevronDown size={14} className="opacity-60 shrink-0" />
       </button>
       {open && (
         <div
-          style={{ width: MENU_WIDTH, maxHeight: "min(70vh, 480px)" }}
-          className={`absolute z-50 rounded-xl border border-border dark:border-border-dark bg-bg dark:bg-panel-dark shadow-xl py-1.5 overflow-y-auto animate-fade-in ${
+          style={{ maxHeight: "min(70vh, 480px)" }}
+          className={`absolute z-50 w-[min(320px,calc(100vw-1.5rem))] rounded-xl border border-border dark:border-border-dark bg-bg dark:bg-panel-dark shadow-xl py-1.5 overflow-y-auto animate-fade-in ${
             align === "right" ? "right-0" : "left-0"
           } ${direction === "up" ? "bottom-full mb-1.5" : "top-full mt-1.5"}`}
         >
