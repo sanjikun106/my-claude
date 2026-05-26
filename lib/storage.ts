@@ -8,6 +8,10 @@ export interface Prefs {
   selectedModel?: string;
   theme?: "light" | "dark";
   sidebarCollapsed?: boolean;
+  /** optional prepaid balance in USD (from Console → Billing) */
+  creditBudgetUsd?: number;
+  /** cumulative estimated spend tracked in this browser */
+  lifetimeSpentUsd?: number;
 }
 
 export function loadConversations(): Conversation[] {

@@ -60,6 +60,8 @@ export interface UsageTotals {
   output: number;
   /** number of API calls that contributed to these totals */
   requests: number;
+  /** estimated USD spend (from published list prices × tokens) */
+  estimatedCostUsd?: number;
 }
 
 export interface Conversation {

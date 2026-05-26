@@ -166,7 +166,7 @@ export function Composer({
         </div>
       </div>
       <p className="text-[11px] text-center text-ink-muted dark:text-ink-mutedDark mt-2">
-        Claude can make mistakes. Verify important information.
+        Laude can make mistakes. Verify important information.
       </p>
     </div>
   );

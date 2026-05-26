@@ -36,8 +36,10 @@ import {
 import { buildContext, extractGraph } from "@/lib/graph-memory";
 import { GraphPanel } from "@/components/GraphPanel";
 import { MemoryModeToggle } from "@/components/MemoryModeToggle";
+import { CostFooter } from "@/components/CostFooter";
 import { Logo } from "@/components/Logo";
 import { Network } from "lucide-react";
+import { estimateCostUsd } from "@/lib/pricing";
 
 const SUGGESTIONS = [
   "Explain a tricky concept like I'm 5",
@@ -63,7 +65,10 @@ export default function Home() {
     input: 0,
     output: 0,
     requests: 0,
+    estimatedCostUsd: 0,
   });
+  const [creditBudgetUsd, setCreditBudgetUsd] = useState<number | null>(null);
+  const [lifetimeSpentUsd, setLifetimeSpentUsd] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const conversationsRef = useRef<Conversation[]>([]);
@@ -77,6 +82,10 @@ export default function Home() {
     if (prefs.selectedModel) setModel(prefs.selectedModel as ModelId);
     if (typeof prefs.sidebarCollapsed === "boolean")
       setCollapsed(prefs.sidebarCollapsed);
+    if (typeof prefs.creditBudgetUsd === "number" && prefs.creditBudgetUsd > 0)
+      setCreditBudgetUsd(prefs.creditBudgetUsd);
+    if (typeof prefs.lifetimeSpentUsd === "number")
+      setLifetimeSpentUsd(prefs.lifetimeSpentUsd);
     setIsDark(document.documentElement.classList.contains("dark"));
     setHydrated(true);
   }, []);
@@ -96,9 +105,11 @@ export default function Home() {
       selectedModel: model,
       sidebarCollapsed: collapsed,
       theme: isDark ? "dark" : "light",
+      creditBudgetUsd: creditBudgetUsd ?? undefined,
+      lifetimeSpentUsd,
     };
     savePrefs(p);
-  }, [model, collapsed, isDark, hydrated]);
+  }, [model, collapsed, isDark, hydrated, creditBudgetUsd, lifetimeSpentUsd]);
 
   const active = useMemo(
     () => conversations.find((c) => c.id === activeId) ?? null,
@@ -267,6 +278,8 @@ export default function Home() {
           onDelta: applyDelta,
         });
 
+        const turnCost = estimateCostUsd(modelId, usage);
+
         setConversations((cs) =>
           cs.map((c) =>
             c.id === convId
@@ -279,6 +292,8 @@ export default function Home() {
                     input: (c.usage?.input ?? 0) + usage.input,
                     output: (c.usage?.output ?? 0) + usage.output,
                     requests: (c.usage?.requests ?? 0) + 1,
+                    estimatedCostUsd:
+                      (c.usage?.estimatedCostUsd ?? 0) + turnCost,
                   },
                 }
               : c,
@@ -288,7 +303,9 @@ export default function Home() {
           input: u.input + usage.input,
           output: u.output + usage.output,
           requests: u.requests + 1,
+          estimatedCostUsd: (u.estimatedCostUsd ?? 0) + turnCost,
         }));
+        setLifetimeSpentUsd((s) => s + turnCost);
 
         // Background: refresh the knowledge graph for this conversation so
         // that the *next* turn uses a graph that includes this exchange.
@@ -437,6 +454,21 @@ export default function Home() {
     setActiveId(null);
   }, []);
 
+  const setCreditBudget = useCallback((usd: number | null) => {
+    setCreditBudgetUsd(usd);
+  }, []);
+
+  const resetLifetimeSpend = useCallback(() => {
+    if (
+      !confirm(
+        "Reset tracked spend to $0? Use this after topping up credits in the Console.",
+      )
+    ) {
+      return;
+    }
+    setLifetimeSpentUsd(0);
+  }, []);
+
   // Show setup screen until key is verified-and-stored
   if (hydrated && (!apiKey || forceSetup)) {
     return (
@@ -538,6 +570,10 @@ export default function Home() {
               onChangeKey={() => setForceSetup(true)}
               onClearAllChats={wipeAllChats}
               onSignOut={signOut}
+              creditBudgetUsd={creditBudgetUsd}
+              onCreditBudgetChange={setCreditBudget}
+              lifetimeSpentUsd={lifetimeSpentUsd}
+              onResetLifetimeSpend={resetLifetimeSpend}
             />
           </div>
         </header>
@@ -594,9 +630,15 @@ export default function Home() {
             isStreaming={streaming}
             placeholder={
               active && active.messages.length > 0
-                ? "Reply to Claude..."
-                : "Message Claude..."
+                ? "Reply to Laude..."
+                : "Message Laude..."
             }
+          />
+          <CostFooter
+            chatUsage={active?.usage}
+            sessionUsage={sessionUsage}
+            creditBudgetUsd={creditBudgetUsd}
+            lifetimeSpentUsd={lifetimeSpentUsd}
           />
         </div>
       </main>
