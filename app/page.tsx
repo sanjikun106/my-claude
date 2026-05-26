@@ -21,12 +21,21 @@ import {
   savePrefs,
   saveConversations,
 } from "@/lib/storage";
-import type { ChatMessage, Conversation, ImageAttachment } from "@/lib/types";
+import type {
+  ChatMessage,
+  Conversation,
+  ImageAttachment,
+  MemoryMode,
+} from "@/lib/types";
 import {
   describeAnthropicError,
   generateTitle,
   streamChat,
 } from "@/lib/anthropic-client";
+import { buildContext, extractGraph } from "@/lib/graph-memory";
+import { GraphPanel } from "@/components/GraphPanel";
+import { MemoryModeToggle } from "@/components/MemoryModeToggle";
+import { Network } from "lucide-react";
 
 const SUGGESTIONS = [
   "Explain a tricky concept like I'm 5",
@@ -46,10 +55,13 @@ export default function Home() {
   const [hydrated, setHydrated] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [forceSetup, setForceSetup] = useState(false);
+  const [graphOpen, setGraphOpen] = useState(false);
+  const [graphRefreshing, setGraphRefreshing] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const conversationsRef = useRef<Conversation[]>([]);
   const apiKeyRef = useRef<string | null>(null);
+  const refreshScheduledRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     setApiKey(loadApiKey());
@@ -131,6 +143,43 @@ export default function Home() {
     [activeId],
   );
 
+  // Build / refresh a conversation's knowledge graph in the background.
+  // Cheap: uses Haiku and reuses the prior graph as a starting point.
+  const refreshGraphNow = useCallback(async (convId: string) => {
+    const key = apiKeyRef.current;
+    if (!key) return;
+    const conv = conversationsRef.current.find((c) => c.id === convId);
+    if (!conv) return;
+    if (conv.messages.length === 0) return;
+    setGraphRefreshing(convId);
+    try {
+      const graph = await extractGraph(key, conv.messages, conv.graph);
+      if (graph) {
+        setConversations((cs) =>
+          cs.map((c) => (c.id === convId ? { ...c, graph } : c)),
+        );
+      }
+    } finally {
+      setGraphRefreshing((s) => (s === convId ? null : s));
+    }
+  }, []);
+
+  const scheduleGraphRefresh = useCallback(
+    (convId: string) => {
+      // Coalesce — only one pending refresh per conversation at a time.
+      if (refreshScheduledRef.current.has(convId)) return;
+      refreshScheduledRef.current.add(convId);
+      setTimeout(async () => {
+        try {
+          await refreshGraphNow(convId);
+        } finally {
+          refreshScheduledRef.current.delete(convId);
+        }
+      }, 250);
+    },
+    [refreshGraphNow],
+  );
+
   const runStreaming = useCallback(
     async (convId: string, modelId: ModelId) => {
       const key = apiKeyRef.current;
@@ -149,13 +198,17 @@ export default function Home() {
         return;
       }
 
-      const wireMessages = initial.messages
-        .filter((m) => !m.error)
-        .map((m) => ({
-          role: m.role,
-          content: m.content,
-          attachments: m.attachments,
-        }));
+      const ctx = buildContext({
+        messages: initial.messages,
+        memoryMode: initial.memoryMode,
+        graph: initial.graph,
+        baseSystemPrompt: initial.systemPrompt,
+      });
+      const wireMessages = ctx.messages.map((m) => ({
+        role: m.role,
+        content: m.content,
+        attachments: m.attachments,
+      }));
 
       const assistantId = newId();
       setConversations((cs) =>
@@ -202,7 +255,7 @@ export default function Home() {
           apiKey: key,
           model: modelId,
           messages: wireMessages,
-          systemPrompt: initial.systemPrompt,
+          systemPrompt: ctx.systemPrompt,
           signal: ctrl.signal,
           onDelta: applyDelta,
         });
@@ -219,6 +272,10 @@ export default function Home() {
               : c,
           ),
         );
+
+        // Background: refresh the knowledge graph for this conversation so
+        // that the *next* turn uses a graph that includes this exchange.
+        scheduleGraphRefresh(convId);
       } catch (err: unknown) {
         const aborted =
           err instanceof DOMException && err.name === "AbortError";
@@ -291,6 +348,7 @@ export default function Home() {
           messages: [userMsg],
           createdAt: Date.now(),
           updatedAt: Date.now(),
+          memoryMode: "graph",
         };
         setConversations((cs) => [newConv, ...cs]);
         setActiveId(convId);
@@ -331,6 +389,19 @@ export default function Home() {
     );
     setTimeout(() => runStreaming(active.id, model), 0);
   }, [active, model, runStreaming]);
+
+  const setActiveMemoryMode = useCallback(
+    (mode: MemoryMode) => {
+      if (!activeId) return;
+      setConversations((cs) =>
+        cs.map((c) => (c.id === activeId ? { ...c, memoryMode: mode } : c)),
+      );
+      if (mode === "graph" && activeId) {
+        scheduleGraphRefresh(activeId);
+      }
+    },
+    [activeId, scheduleGraphRefresh],
+  );
 
   const handleVerifiedKey = useCallback((key: string) => {
     saveApiKey(key);
@@ -407,15 +478,36 @@ export default function Home() {
             <div className="ml-1">
               <ModelSelector value={model} onChange={setModel} />
             </div>
+            {active && (
+              <MemoryModeToggle
+                value={active.memoryMode ?? "full"}
+                onChange={setActiveMemoryMode}
+              />
+            )}
           </div>
-          <SettingsMenu
-            apiKey={apiKey ?? ""}
-            isDark={isDark}
-            onToggleDark={toggleDark}
-            onChangeKey={() => setForceSetup(true)}
-            onClearAllChats={wipeAllChats}
-            onSignOut={signOut}
-          />
+          <div className="flex items-center gap-1">
+            {active && (
+              <button
+                onClick={() => setGraphOpen((o) => !o)}
+                className={`p-2 rounded-lg transition-colors ${
+                  graphOpen
+                    ? "bg-accent/15 text-accent"
+                    : "hover:bg-panel dark:hover:bg-panel-dark text-ink-muted dark:text-ink-mutedDark"
+                }`}
+                title="Toggle knowledge graph"
+              >
+                <Network size={17} />
+              </button>
+            )}
+            <SettingsMenu
+              apiKey={apiKey ?? ""}
+              isDark={isDark}
+              onToggleDark={toggleDark}
+              onChangeKey={() => setForceSetup(true)}
+              onClearAllChats={wipeAllChats}
+              onSignOut={signOut}
+            />
+          </div>
         </header>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
@@ -476,6 +568,15 @@ export default function Home() {
           />
         </div>
       </main>
+
+      {graphOpen && active && (
+        <GraphPanel
+          conversation={active}
+          refreshing={graphRefreshing === active.id}
+          onRefresh={() => refreshGraphNow(active.id)}
+          onClose={() => setGraphOpen(false)}
+        />
+      )}
     </div>
   );
 }

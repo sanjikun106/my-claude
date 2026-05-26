@@ -22,6 +22,38 @@ export interface ChatMessage {
   error?: string;
 }
 
+export type GraphNodeType =
+  | "person"
+  | "concept"
+  | "place"
+  | "thing"
+  | "event"
+  | "organization";
+
+export interface GraphNode {
+  id: string;
+  label: string;
+  type: GraphNodeType;
+  /** optional 1-line description explaining the node */
+  note?: string;
+}
+
+export interface GraphEdge {
+  source: string;
+  target: string;
+  label: string;
+}
+
+export interface ConversationGraph {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  /** how many messages this graph reflects */
+  messageCount: number;
+  extractedAt: number;
+}
+
+export type MemoryMode = "graph" | "full";
+
 export interface Conversation {
   id: string;
   title: string;
@@ -31,4 +63,8 @@ export interface Conversation {
   updatedAt: number;
   /** optional system prompt for this thread */
   systemPrompt?: string;
+  /** how to construct context for new messages — defaults to "graph" */
+  memoryMode?: MemoryMode;
+  /** distilled knowledge graph of the conversation so far */
+  graph?: ConversationGraph;
 }
