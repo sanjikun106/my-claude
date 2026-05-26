@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Conversation, UsageTotals } from "@/lib/types";
-import { Logo } from "./Logo";
 
 interface Props {
   conversations: Conversation[];
@@ -118,9 +117,10 @@ export function Sidebar({
   return (
     <aside className="flex h-full w-[260px] max-w-[88vw] shrink-0 flex-col bg-panel dark:bg-panel-dark border-r border-border dark:border-border-dark">
       <div className="flex items-center justify-between px-3 pt-3 pb-2">
-        <div className="flex items-center gap-2 px-1">
-          <Logo size={22} />
-          <span className="font-semibold text-[15px]">Laude</span>
+        <div className="px-2 py-0.5">
+          <span className="font-serif text-[22px] font-normal tracking-[-0.02em] text-ink dark:text-ink-dark">
+            Laude
+          </span>
         </div>
         <button
           onClick={onToggleCollapsed}
