@@ -36,7 +36,7 @@ export function ApiKeySetup({ initialError, onVerified }: Props) {
             <Logo size={56} rounded="rounded-2xl" />
           </div>
           <h1 className="font-serif text-[28px] mb-2 text-ink dark:text-ink-dark">
-            Welcome to Laude
+            Welcome to cLaude
           </h1>
           <p className="text-[14px] text-ink-muted dark:text-ink-mutedDark leading-relaxed">
             Paste your Anthropic API key to start chatting. It&apos;s stored only in

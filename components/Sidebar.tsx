@@ -119,7 +119,7 @@ export function Sidebar({
       <div className="flex items-center justify-between px-3 pt-3 pb-2">
         <div className="px-2 py-0.5">
           <span className="font-serif text-[22px] font-normal tracking-[-0.02em] text-ink dark:text-ink-dark">
-            Laude
+            cLaude
           </span>
         </div>
         <button

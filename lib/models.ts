@@ -17,7 +17,7 @@ export interface ClaudeModel {
 export const MODELS: ClaudeModel[] = [
   {
     id: "claude-opus-4-7",
-    name: "Laude Opus 4.7",
+    name: "cLaude Opus 4.7",
     description: "Flagship — best for the hardest reasoning and agent work",
     badge: "Most intelligent",
     supportsVision: true,
@@ -25,7 +25,7 @@ export const MODELS: ClaudeModel[] = [
   },
   {
     id: "claude-sonnet-4-6",
-    name: "Laude Sonnet 4.6",
+    name: "cLaude Sonnet 4.6",
     description: "Smart, fast, 1M context — best for everyday work",
     badge: "Recommended",
     supportsVision: true,
@@ -33,7 +33,7 @@ export const MODELS: ClaudeModel[] = [
   },
   {
     id: "claude-haiku-4-5",
-    name: "Laude Haiku 4.5",
+    name: "cLaude Haiku 4.5",
     description: "Fastest, lowest cost, near-frontier intelligence",
     badge: "Fastest",
     supportsVision: true,
@@ -41,35 +41,35 @@ export const MODELS: ClaudeModel[] = [
   },
   {
     id: "claude-opus-4-6",
-    name: "Laude Opus 4.6",
+    name: "cLaude Opus 4.6",
     description: "Previous flagship",
     supportsVision: true,
     maxOutputTokens: 16000,
   },
   {
     id: "claude-sonnet-4-5",
-    name: "Laude Sonnet 4.5",
+    name: "cLaude Sonnet 4.5",
     description: "Previous-generation Sonnet",
     supportsVision: true,
     maxOutputTokens: 8192,
   },
   {
     id: "claude-opus-4-5",
-    name: "Laude Opus 4.5",
+    name: "cLaude Opus 4.5",
     description: "Earlier Opus 4 release",
     supportsVision: true,
     maxOutputTokens: 8192,
   },
   {
     id: "claude-opus-4-1",
-    name: "Laude Opus 4.1",
+    name: "cLaude Opus 4.1",
     description: "Opus 4.1 snapshot",
     supportsVision: true,
     maxOutputTokens: 8192,
   },
   {
     id: "claude-3-7-sonnet-latest",
-    name: "Laude 3.7 Sonnet",
+    name: "cLaude 3.7 Sonnet",
     description: "Hybrid reasoning (3.x series)",
     supportsVision: true,
     maxOutputTokens: 8192,

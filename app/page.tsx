@@ -630,8 +630,8 @@ export default function Home() {
             isStreaming={streaming}
             placeholder={
               active && active.messages.length > 0
-                ? "Reply to Laude..."
-                : "Message Laude..."
+                ? "Reply to cLaude..."
+                : "Message cLaude..."
             }
           />
           <CostFooter

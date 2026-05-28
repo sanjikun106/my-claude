@@ -15,7 +15,7 @@ export function Logo({ size = 24, className = "", rounded = "rounded-md" }: Prop
   return (
     <img
       src={`${BASE_PATH}/logo.jpeg`}
-      alt="Laude"
+      alt="cLaude"
       width={size}
       height={size}
       style={{ width: size, height: size }}
